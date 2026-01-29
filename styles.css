@@ -2027,6 +2027,145 @@ input, textarea, select {
     }
 }
 
+/* ===== Extra Small Devices (320px and below) ===== */
+@media (max-width: 360px) {
+    html {
+        font-size: 13px;
+    }
+    
+    .container {
+        padding: 0 0.75rem;
+    }
+    
+    .hero-title {
+        font-size: 1.35rem;
+    }
+    
+    .section-title {
+        font-size: 1.35rem;
+    }
+    
+    .hero {
+        padding: 90px 0 50px;
+    }
+    
+    .logo-text {
+        font-size: 1.25rem;
+    }
+    
+    .logo-subtext {
+        font-size: 0.65rem;
+    }
+    
+    .cta-btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-form {
+        padding: 1.5rem 1rem;
+    }
+    
+    .consulting-card {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* ===== Large Desktops (1400px and above) ===== */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+    
+    html {
+        font-size: 18px;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ===== Extra Large Desktops (1600px and above) ===== */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1500px;
+    }
+    
+    html {
+        font-size: 19px;
+    }
+}
+
+/* ===== Touch Device Optimizations ===== */
+@media (hover: none) and (pointer: coarse) {
+    .cta-btn:hover,
+    .service-card:hover,
+    .platform-card:hover,
+    .nav-link:hover {
+        transform: none;
+    }
+    
+    .cta-btn:active {
+        transform: scale(0.98);
+    }
+    
+    .service-card:active,
+    .platform-card:active {
+        transform: translateY(-2px);
+    }
+}
+
+/* ===== Safe Area Support (for notched phones) ===== */
+@supports (padding: max(0px)) {
+    .header {
+        padding-top: max(0.5rem, env(safe-area-inset-top));
+    }
+    
+    .container {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+    
+    .whatsapp-float {
+        bottom: max(20px, env(safe-area-inset-bottom));
+        left: max(20px, env(safe-area-inset-left));
+    }
+    
+    .back-to-top {
+        bottom: max(90px, calc(env(safe-area-inset-bottom) + 70px));
+    }
+}
+
+/* ===== Landscape Mode on Mobile ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        padding: 80px 0 40px;
+        min-height: auto;
+    }
+    
+    .hero-stats {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+    
+    .hero-btns {
+        flex-direction: row;
+    }
+    
+    .scroll-indicator {
+        display: none;
+    }
+}
+
 /* ===== Animation Classes ===== */
 [data-aos] {
     pointer-events: none;
