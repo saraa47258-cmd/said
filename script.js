@@ -1,9 +1,23 @@
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const shouldReduceMotion = isTouchDevice || isMobileViewport || prefersReducedMotion;
+const PASSIVE_SCROLL = { passive: true };
+
+if (isTouchDevice) {
+    document.body.classList.add('touch-device');
+}
+
 // ===== Preloader =====
 window.addEventListener('load', () => {
     const preloader = document.querySelector('.preloader');
+    if (!preloader) return;
+
+    // Keep first paint quick on mobile/touch devices.
+    const hideDelay = shouldReduceMotion ? 250 : 700;
     setTimeout(() => {
         preloader.classList.add('hidden');
-    }, 1000);
+    }, hideDelay);
 });
 
 // ===== Initialize AOS Animation =====
@@ -13,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         easing: 'ease-out-cubic',
         once: true,
         offset: 50,
-        disable: 'mobile'
+        disable: shouldReduceMotion
     });
 });
 
@@ -24,6 +38,8 @@ let lastScroll = 0;
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
     
+    if (!header) return;
+
     if (currentScroll > 50) {
         header.classList.add('scrolled');
     } else {
@@ -31,7 +47,7 @@ window.addEventListener('scroll', () => {
     }
     
     lastScroll = currentScroll;
-});
+}, PASSIVE_SCROLL);
 
 // ===== Mobile Menu =====
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
@@ -57,15 +73,20 @@ if (mobileMenuBtn && mobileMenu) {
 // ===== Smooth Scroll for Navigation Links =====
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (!href || href === '#') return;
+
+        const target = document.querySelector(href);
+        if (!target) return;
+
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
         if (target) {
             const headerHeight = document.querySelector('.header').offsetHeight;
             const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
             
             window.scrollTo({
                 top: targetPosition,
-                behavior: 'smooth'
+                behavior: shouldReduceMotion ? 'auto' : 'smooth'
             });
         }
     });
@@ -92,24 +113,26 @@ window.addEventListener('scroll', () => {
             link.classList.add('active');
         }
     });
-});
+}, PASSIVE_SCROLL);
 
 // ===== Back to Top Button =====
 const backToTopBtn = document.querySelector('.back-to-top');
 
 window.addEventListener('scroll', () => {
+    if (!backToTopBtn) return;
+
     if (window.pageYOffset > 500) {
         backToTopBtn.classList.add('visible');
     } else {
         backToTopBtn.classList.remove('visible');
     }
-});
+}, PASSIVE_SCROLL);
 
-if (backToTopBtn) {
+    if (backToTopBtn) {
     backToTopBtn.addEventListener('click', () => {
         window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: shouldReduceMotion ? 'auto' : 'smooth'
         });
     });
 }
@@ -260,30 +283,33 @@ function showNotification(message, type) {
     `;
     
     // Add animation keyframes
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
+    if (!document.getElementById('notification-animations')) {
+        const style = document.createElement('style');
+        style.id = 'notification-animations';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
             }
-            to {
-                transform: translateX(0);
-                opacity: 1;
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
             }
-        }
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
+        `;
+        document.head.appendChild(style);
+    }
     
     document.body.appendChild(notification);
     
@@ -310,41 +336,45 @@ const heroSection = document.querySelector('.hero');
 const heroShapes = document.querySelectorAll('.hero-shape');
 
 window.addEventListener('scroll', () => {
-    if (heroSection && window.innerWidth > 768) {
+    if (!shouldReduceMotion && heroSection && window.innerWidth > 768) {
         const scrolled = window.pageYOffset;
         heroShapes.forEach((shape, index) => {
             const speed = (index + 1) * 0.05;
             shape.style.transform = `translateY(${scrolled * speed}px)`;
         });
     }
-});
+}, PASSIVE_SCROLL);
 
 // ===== Feature Items Hover Effect =====
 const featureItems = document.querySelectorAll('.feature-item');
 
-featureItems.forEach(item => {
-    item.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-5px) scale(1.02)';
+if (!isTouchDevice) {
+    featureItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
     });
-    
-    item.addEventListener('mouseleave', function() {
-        this.style.transform = '';
-    });
-});
+}
 
 // ===== Service Cards Hover Effect =====
 const serviceCards = document.querySelectorAll('.service-card');
 
-serviceCards.forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        serviceCards.forEach(c => c.style.opacity = '0.7');
-        this.style.opacity = '1';
+if (!isTouchDevice) {
+    serviceCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            serviceCards.forEach(c => c.style.opacity = '0.7');
+            this.style.opacity = '1';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            serviceCards.forEach(c => c.style.opacity = '1');
+        });
     });
-    
-    card.addEventListener('mouseleave', function() {
-        serviceCards.forEach(c => c.style.opacity = '1');
-    });
-});
+}
 
 // ===== Platform Cards Animation =====
 const platformCards = document.querySelectorAll('.platform-card');
@@ -408,10 +438,12 @@ if (chartContainer) {
 // ===== Problem Tags Random Rotation =====
 const problemTags = document.querySelectorAll('.problem-tag');
 
-problemTags.forEach((tag, index) => {
-    const rotation = (Math.random() - 0.5) * 6;
-    tag.style.transform = `rotate(${rotation}deg)`;
-});
+if (!shouldReduceMotion) {
+    problemTags.forEach(tag => {
+        const rotation = (Math.random() - 0.5) * 6;
+        tag.style.transform = `rotate(${rotation}deg)`;
+    });
+}
 
 // ===== Resize Handler =====
 let resizeTimer;
@@ -419,16 +451,11 @@ window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
         // Reinitialize AOS on resize
-        AOS.refresh();
+        if (window.AOS && !shouldReduceMotion) {
+            AOS.refresh();
+        }
     }, 250);
 });
-
-// ===== Touch Device Detection =====
-const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-if (isTouchDevice) {
-    document.body.classList.add('touch-device');
-}
 
 // ===== Prevent iOS Zoom on Input Focus =====
 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
