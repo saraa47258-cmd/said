@@ -1,0 +1,10 @@
+services:
+  tash-website:
+    build: .
+    container_name: tash-agency
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: unless-stopped
